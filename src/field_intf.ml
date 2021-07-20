@@ -19,7 +19,7 @@ module type FIELD = sig
   val pp_raw : Format.formatter -> bytes -> off:int -> unit
 end
 
-type _kind = Leaf | Node of int [@@deriving repr]
+type kind = Leaf | Node of int [@@deriving repr]
 
 module type INT = FIELD with type convert := int
 
@@ -28,8 +28,10 @@ module type BOOL = FIELD with type convert := bool
 module type STRING = FIELD with type convert := string
 
 module type KIND = sig
-  include FIELD with type convert := _kind
+  include FIELD with type convert := kind
 
+  (* "depth" here refers to the depth from the leaf upward to the root, that's unusual. Maybe name
+     this "inverse_depth" or something else? *)
   val of_depth : int -> t (* kind of a node from its distance to the leaves *)
 
   val to_depth : t -> int (* distance to the leaves of a node, from its kind *)
@@ -54,7 +56,7 @@ module type COMMON = sig
 end
 
 module type Field = sig
-  type kind = _kind [@@deriving repr]
+  type nonrec kind = kind [@@deriving repr]
 
   module type INT = INT
 

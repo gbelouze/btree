@@ -1,3 +1,5 @@
+(* Not looked at yet *)
+
 include Cache_intf
 
 module Make (K : Hashtbl.HashedType) (V : Lru.Weighted) = struct
