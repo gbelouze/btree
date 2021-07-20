@@ -15,6 +15,7 @@ module type S = sig
 
   val load : store -> address -> t
 
+  (* Lot's of duplication between [Node] and [Leaf], but I guess that's not that terrible. *)
   val self_address : t -> address
 
   val overflow : t -> bool

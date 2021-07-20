@@ -37,7 +37,9 @@ functor
 
     let will_overflow t = LeafFmt.length t.leaf >= 2 * Params.fanout
 
-    let underflow t = LeafFmt.length t.leaf < Params.fanout
+    let underflow t =
+      (* I'm not sure [underflow] is the right naming here. *)
+      LeafFmt.length t.leaf < Params.fanout
 
     let split t =
       let address = Store.allocate t.store in

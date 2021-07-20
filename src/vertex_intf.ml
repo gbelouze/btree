@@ -1,3 +1,5 @@
+(* Not looked at yet *)
+
 module type S = sig
   type t
   (** The type of vertex mapping type [key] to type [value] *)
@@ -86,6 +88,7 @@ module type S = sig
 end
 
 module type BOUND = sig
+  (* Why the [Bound] name? Maybe just [Value]? *)
   (* what is bound in the vertex *)
   type t
 

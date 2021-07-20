@@ -7,6 +7,7 @@ module type CALIFORNIA = sig
 
   type t
 
+  (* Need documentation on the parameters! *)
   val v :
     flush:(key -> value -> unit) ->
     load:(?available:value -> key -> value) ->

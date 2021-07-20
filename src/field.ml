@@ -1,12 +1,18 @@
 include Field_intf
 
-type kind = _kind [@@deriving repr]
+type nonrec kind = kind [@@deriving repr]
 
 module MakeInt (Size : SIZE) = struct
   type t = int [@@deriving repr]
 
   let size = Size.size
 
+  (* Your [Int(32,64).(to,of)_int] uses are unsafe. You should do something about it.
+
+     [get_int32_be b off |> Int32.to_int] would be wrong on large enough ints on 32bit systems
+
+     [Int32.of_int |> set_int32_be b off] would be wrong on large enough ints
+   *)
   let get, set =
     match size with
     | 1 -> Bytes.((fun b ~off -> get_uint8 b off), fun b ~off -> set_uint8 b off)
@@ -39,9 +45,11 @@ module MakeBool (Size : SIZE) = struct
   type t = bool [@@deriving repr]
 
   let size = Size.size
+  (* you should raise an error is size is not 1 *)
 
   let set ~marker b ~off t =
     marker ();
+    (* any reason why you picked \254 and not \0 ? *)
     Bytes.set b off (if t then '\255' else '\254')
 
   let get b ~off =
@@ -96,7 +104,7 @@ module MakeCommon (Params : Params.S) : COMMON = struct
   end)
 
   module Pointer = MakeInt (struct
-    let minimal_size = Params.page_sz |> Fmt.str "%x" |> String.length |> fun x -> (x + 1) / 2
+    let minimal_size = (Params.page_sz - 1) |> Fmt.str "%x" |> String.length |> fun x -> (x + 1) / 2
 
     let size = [ 1; 2; 4; 8 ] |> List.filter (( <= ) minimal_size) |> List.hd
   end)

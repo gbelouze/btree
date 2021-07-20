@@ -268,6 +268,8 @@ module Make (Params : Params.S) (Common : Field.COMMON) = struct
     let file = root // "b.tree" in
 
     let california_capacity =
+      (* This piece of magic should be documented (maybe with verbose intermediate variables),
+         and maybe moved to cache.ml *)
       (Utils.pow (2 * Params.fanout) (cache_height + 1) - 1) / ((2 * Params.fanout) - 1)
     in
     let lru_capacity = max_pages - california_capacity in
