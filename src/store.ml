@@ -305,7 +305,9 @@ module Make (Params : Params.S) (Common : Field.COMMON) = struct
           california_capacity lru_capacity
       in
 
-      let t = { n_pages; dead_pages = []; header; fd; dir = root; cache } in
+      let t = { n_pages;
+                (* what about the dead pages from last time? *)
+                dead_pages = []; header; fd; dir = root; cache } in
       check_height t;
       t)
     else

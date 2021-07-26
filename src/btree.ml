@@ -95,6 +95,8 @@ module Make (InKey : Input.Key) (InValue : Input.Value) (Size : Input.Size) :
     Fmt.pf formatter "%a@." Store.pp_header t.store;
     close_out out_header
 
+  (* That's a costly function! Wouldn't it be possible to store this information inside the
+     header of the file? *)
   let length t =
     let rec aux address =
       let page = Store.load t.store address in
@@ -155,7 +157,16 @@ module Make (InKey : Input.Key) (InValue : Input.Value) (Size : Input.Size) :
     let ret =
       try
         let ret = Leaf.find leaf key |> Value.to_input in
+
+        (* This recording scheme allocates things even if recording is disabled *)
         record t (Find (inkey, true));
+
+        (* This one doesn't *)
+        if t.should_record then record t (Find (inkey, true));
+
+        (* neither does this one  *)
+        record t (fun () -> (Find (inkey, true)));
+
         ret
       with Not_found ->
         record t (Find (inkey, false));
@@ -177,28 +188,28 @@ module Make (InKey : Input.Key) (InValue : Input.Value) (Size : Input.Size) :
     record t (Mem (inkey, ret));
     ret
 
-  let path_to_leaf t key =
-    let rec aux path address =
+  let rev_path_to_leaf t key =
+    let rec aux rev_path address =
       let page = Store.load t.store address in
       match Page.kind page |> Common.Kind.from_t with
-      | Leaf -> address :: path
+      | Leaf -> address :: rev_path
       | Node _depth ->
           let node = Node.load t.store address in
-          aux (address :: path) (Node.find node key)
+          aux (address :: rev_path) (Node.find node key)
     in
 
     aux [] (Store.root t.store)
 
-  let path_to_leaf_with_neighbour t key =
-    let rec aux path_with_neighbour address =
+  let rev_path_to_leaf_with_neighbour t key =
+    let rec aux rev_path_with_neighbour address =
       let page = Store.load t.store address in
       match Page.kind page |> Common.Kind.from_t with
-      | Leaf -> (address, path_with_neighbour)
+      | Leaf -> (address, rev_path_with_neighbour)
       | Node _depth ->
           let node = Node.load t.store address in
           let neighbour = Node.find_with_neighbour node key in
           let next = neighbour.main |> snd in
-          aux ((address, neighbour) :: path_with_neighbour) next
+          aux ((address, neighbour) :: rev_path_with_neighbour) next
     in
     aux [] (Store.root t.store)
 
@@ -208,8 +219,8 @@ module Make (InKey : Input.Key) (InValue : Input.Value) (Size : Input.Size) :
     Index_stats.incr_nb_replace ();
     let key = Key.of_input inkey in
     let value = Value.of_input invalue in
-    let path = path_to_leaf t key in
-    let leaf_address = List.hd path in
+    let rev_path = rev_path_to_leaf t key in
+    let leaf_address = List.hd rev_path in
 
     let rec split_nodes nodes promoted allocated_address =
       match nodes with
@@ -504,7 +515,7 @@ module Make (InKey : Input.Key) (InValue : Input.Value) (Size : Input.Size) :
   type reconstruct_elem = { address : Common.Address.t; min_key : Key.t }
 
   let reconstruct t =
-    (* reconstruct the btree, assuming only the leaves not corrupted *)
+    (* reconstruct the btree, assuming only the leaves are? corrupted *)
     let prepare_store () =
       (* deallocate all non-leaf page and evaluates to the list of leaf addresses *)
       let leaves = ref [] in
