@@ -42,6 +42,9 @@ module Make (K : Hashtbl.HashedType) (V : Lru.Weighted) = struct
     let push v q = if length q < 64 then push v q
   end
 
+  (* This feature is a nice to have for performance reasons, but it can currently be source of bugs
+     as a page's buffer could be salvaged while it is still being used.
+   *)
   let availables = Queue.create ()
 
   let find t key =

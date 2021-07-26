@@ -1,3 +1,19 @@
+  (*
+     The volatile mechanism should be reworked. 2 problematic cases:
+     - `iter` releases its intermediate nodes while iterating on it
+     - Calling `mem` during `iter` releases everything at the end of mem
+
+     A solution would be to change the signature to [val unpin t -> key -> unit], so that
+     the cache can keep a [key -> int * t] where [unpin] would decrease the [int] and [0]
+     would trigger a collection.
+
+     Another solution would be to use a weakmap somehow.
+
+     I also think that the Lru pages should be pinned too, to avoid the salvaging of pages
+     still in use.
+   *)
+
+
 module type CALIFORNIA = sig
   (* You can (almost) never leave the california cache *)
 

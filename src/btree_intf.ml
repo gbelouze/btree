@@ -34,6 +34,7 @@ module type S = sig
 
   val reconstruct : t -> unit
 
+  (* This should be called [replace]!! *)
   val add : t -> key -> value -> unit
 
   val remove : t -> key -> unit
