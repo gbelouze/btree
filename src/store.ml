@@ -167,7 +167,7 @@ module Make (Params : Params.S) (Common : Field.COMMON) = struct
     let kind t = _kind t.content
   end
 
-  let fsync t =
+  let fsync (t : t) =
     tic stat_fsync;
     Unix.fsync t.fd;
     tac stat_fsync
@@ -353,7 +353,7 @@ module Make (Params : Params.S) (Common : Field.COMMON) = struct
 
     let cache_size t = (t.cache |> Obj.repr |> Obj.reachable_words) * Sys.word_size / 8
 
-    let write t s =
+    let write (t : t) s =
       let l = String.length s in
       let write_size = Unix.write_substring t.fd s 0 l in
       assert (write_size = l)
