@@ -19,12 +19,12 @@ class LogError(Exception):
 
 
 plt.style.use('default')
-plt.rcParams['font.size'] = 12
-plt.rcParams['axes.labelsize'] = 12
+plt.rcParams['font.size'] = 30
+plt.rcParams['axes.labelsize'] = 30
 plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 10
-plt.rcParams['ytick.labelsize'] = 10
-plt.rcParams['legend.fontsize'] = 12
+plt.rcParams['xtick.labelsize'] = 20
+plt.rcParams['ytick.labelsize'] = 20
+plt.rcParams['legend.fontsize'] = 30
 plt.rcParams['figure.titlesize'] = 14
 
 argparser = argparse.ArgumentParser()
@@ -113,7 +113,7 @@ def legendpoint(color, label):
                   color='w',
                   label=label,
                   markerfacecolor=color,
-                  markersize=5)
+                  markersize=12)
 
 
 def get_handles(labels):
@@ -129,7 +129,7 @@ def set_labels(fig, xlabel, ylabel):
     bx.set_xticks([])
     bx.grid(False)
     bx.set_xlabel(xlabel, labelpad=40)
-    bx.set_ylabel(ylabel, labelpad=40)
+    bx.set_ylabel(ylabel, labelpad=65)
 
 
 def deserialize(histogram):
@@ -259,8 +259,8 @@ def plot(df, modules, re_name, t_height, density, _range):
                             w,
                             figsize=(H, W),
                             squeeze=False,
-                            sharex=False,
-                            sharey=False)
+                            sharex=True,
+                            sharey=True)
     set_labels(fig, "Elapsed time (sec)", "Operation duration (sec)")
 
     for i, (name, group) in enumerate(groups):
@@ -343,12 +343,23 @@ def plot(df, modules, re_name, t_height, density, _range):
         ax_.set_yticks([])
         ax_.set_yticks([])
         ax_.legend(handles=handles)
-        ax.set_title(name)
+        #ax.set_title(f"Profiling of module ${name}$'s main functions", pad=30)
 
 
 if __name__ == "__main__":
     args = argparser.parse_args()
     dirs = find_dirs(args.path, rec=args.R, with_log=args.with_log)
+
+    MEDIUM_SIZE = 20
+    LARGE_SIZE = 30
+    plt.rc('font', size=LARGE_SIZE)  # controls default text sizes
+    plt.rc('axes', titlesize=LARGE_SIZE)  # fontsize of the axes title
+    plt.rc('axes', labelsize=LARGE_SIZE)  # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+    plt.rc('ytick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+    plt.rc('legend', fontsize=LARGE_SIZE)  # legend fontsize
+    plt.rc('figure', titlesize=LARGE_SIZE)  # fontsize of the figure title
+
     for dir in dirs:
         print(dir)
         df = read_stats(dir)

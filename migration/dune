@@ -1,0 +1,21 @@
+(executables
+ (names bench_trace generate)
+ (modules bench_trace generate context)
+ (libraries
+  index
+  index.unix
+  btree
+  mybentov
+  repr
+  ppx_repr
+  encoding
+  fmt
+  logs
+  logs.fmt
+  yojson
+  cmdliner
+  optint
+  progress
+  oracle)
+ (preprocess
+  (pps ppx_repr ppx_deriving_yojson)))
